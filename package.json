@@ -1,0 +1,19 @@
+{
+  "name": "openai-agents-sdk-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for OpenAI Agents SDK documentation",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "test": "python test_mcp.py"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "openai",
+    "agents",
+    "documentation"
+  ],
+  "author": "",
+  "license": "MIT"
+}

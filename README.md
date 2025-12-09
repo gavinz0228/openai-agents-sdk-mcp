@@ -1,10 +1,53 @@
 # OpenAI Agents SDK MCP Tool
 
-A Model Context Protocol (MCP) tool plugin that provides documentation for the OpenAI Agents SDK by extracting and indexing content from the official documentation website: https://openai.github.io/openai-agents-python/
+A Model Context Protocol (MCP) server that provides documentation for the OpenAI Agents SDK by extracting and indexing content from the official documentation website: https://openai.github.io/openai-agents-python/
+
+## Overview
+
+This project provides both a standalone CLI tool and an MCP server that allows LLMs to access and query the OpenAI Agents SDK documentation intelligently.
+
+## Quick Start (MCP Server)
+
+1. **Install dependencies**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On macOS/Linux
+   pip install -r requirements.txt
+   ```
+
+2. **Set up API key**:
+   ```bash
+   echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
+   ```
+
+3. **Test the server**:
+   ```bash
+   python test_mcp.py
+   ```
+
+4. **Configure your MCP client** (e.g., Claude Desktop):
+   ```json
+   {
+     "mcpServers": {
+       "openai-agents-sdk-docs": {
+         "command": "/absolute/path/to/.venv/bin/python",
+         "args": ["/absolute/path/to/server.py"]
+       }
+     }
+   }
+   ```
+
+See [MCP_CONFIGURATION.md](MCP_CONFIGURATION.md) for detailed setup instructions.
 
 ## Features
 
-### 1. **Automatic Documentation Indexing**
+### 1. **MCP Server** (Primary Interface)
+Exposes two tools for LLMs:
+
+- **`list_documentation_topics`**: Get a complete list of all available documentation topics with their URLs
+- **`get_documentation`**: Search for and retrieve documentation using natural language queries
+
+### 2. **Automatic Documentation Indexing**
 - Fetches and parses the OpenAI Agents SDK documentation website
 - Extracts all navigation links and topics
 - Creates a structured JSON map of topics to URLs
@@ -52,7 +95,95 @@ OPENAI_API_KEY=sk-your-api-key-here
 
 ## Usage
 
-### Generate/Refresh Documentation Index
+### MCP Server (Recommended)
+
+The MCP server allows LLMs to access the documentation through standardized tool calls.
+
+#### 1. Start the MCP Server
+
+```bash
+python server.py
+```
+
+The server communicates via stdio and is designed to be used by MCP clients (like Claude Desktop, IDEs, or custom applications).
+
+#### 2. Configure MCP Client
+
+Add to your MCP client configuration (e.g., Claude Desktop's config):
+
+```json
+{
+  "mcpServers": {
+    "openai-agents-sdk-docs": {
+      "command": "python",
+      "args": ["/path/to/openai-agent-sdk-mcp/server.py"],
+      "env": {
+        "OPENAI_API_KEY": "sk-your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+Or use the absolute path to your virtual environment's Python:
+
+```json
+{
+  "mcpServers": {
+    "openai-agents-sdk-docs": {
+      "command": "/path/to/openai-agent-sdk-mcp/.venv/bin/python",
+      "args": ["/path/to/openai-agent-sdk-mcp/server.py"]
+    }
+  }
+}
+```
+
+#### 3. Available MCP Tools
+
+**`list_documentation_topics`**
+- Lists all available documentation topics
+- Optional parameter: `force_refresh` (boolean) - Force refresh the index
+
+Example:
+```json
+{
+  "name": "list_documentation_topics",
+  "arguments": {
+    "force_refresh": false
+  }
+}
+```
+
+**`get_documentation`**
+- Search and retrieve documentation for a specific feature
+- Parameters:
+  - `query` (string, required) - Feature name or natural language question
+  - `include_content` (boolean, optional) - Whether to include full content (default: true)
+
+Example:
+```json
+{
+  "name": "get_documentation",
+  "arguments": {
+    "query": "handoffs",
+    "include_content": true
+  }
+}
+```
+
+#### 4. Test the MCP Server
+
+```bash
+python test_mcp.py
+```
+
+This will run automated tests to verify all MCP tools are working correctly.
+
+### Standalone CLI Tool
+
+You can also use the tool directly from the command line.
+
+#### Generate/Refresh Documentation Index
 
 ```bash
 python openai_agents_sdk_mcp.py
@@ -64,7 +195,7 @@ This will:
 - Save to `docs_index.json`
 - Display all available topics
 
-### Search for Documentation
+#### Search for Documentation
 
 ```bash
 python openai_agents_sdk_mcp.py "feature name or query"
@@ -140,7 +271,10 @@ INDEX_MAX_AGE_DAYS = 1               # Maximum age before refresh
 
 ## Files
 
-- `openai_agents_sdk_mcp.py` - Main script
+- `server.py` - MCP server implementation
+- `openai_agents_sdk_mcp.py` - Core functionality and CLI tool
+- `test_mcp.py` - Test script for the MCP server
+- `mcp_config.json` - Example MCP client configuration
 - `docs_index.json` - Cached documentation index (auto-generated)
 - `requirements.txt` - Python dependencies
 - `.env` - Environment variables (create this)
@@ -153,6 +287,7 @@ INDEX_MAX_AGE_DAYS = 1               # Maximum age before refresh
 - `lxml` - XML/HTML parser
 - `openai` - OpenAI API client for AI-powered search
 - `python-dotenv` - Environment variable management
+- `mcp` - Model Context Protocol SDK
 
 ## Example Output
 
