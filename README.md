@@ -2,42 +2,62 @@
 
 A Model Context Protocol (MCP) server that provides documentation for the OpenAI Agents SDK by extracting and indexing content from the official documentation website: https://openai.github.io/openai-agents-python/
 
+This package can be installed as a Python library and used with any MCP-compatible LLM client (Claude Desktop, VS Code, Cursor, etc.).
+
+## Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install openai-agents-sdk-mcp
+```
+
+### From Source
+
+```bash
+git clone https://github.com/gavinz0228/openai-agents-sdk-mcp.git
+cd openai-agents-sdk-mcp
+pip install -e .
+```
+
+See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions.
+
 ## Overview
 
 This project provides both a standalone CLI tool and an MCP server that allows LLMs to access and query the OpenAI Agents SDK documentation intelligently.
 
 ## Quick Start (MCP Server)
 
-1. **Install dependencies**:
+1. **Install the package**:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On macOS/Linux
-   pip install -r requirements.txt
+   pip install openai-agents-sdk-mcp
    ```
 
 2. **Set up API key**:
    ```bash
-   echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
+   export OPENAI_API_KEY="sk-your-api-key-here"
    ```
 
-3. **Test the server**:
-   ```bash
-   python test_mcp.py
-   ```
-
-4. **Configure your MCP client** (e.g., Claude Desktop):
+3. **Configure your MCP client** (e.g., Claude Desktop):
    ```json
    {
      "mcpServers": {
        "openai-agents-sdk-docs": {
-         "command": "/absolute/path/to/.venv/bin/python",
-         "args": ["/absolute/path/to/server.py"]
+         "command": "openai-agents-sdk-mcp",
+         "env": {
+           "OPENAI_API_KEY": "sk-your-api-key-here"
+         }
        }
      }
    }
    ```
 
-See [MCP_CONFIGURATION.md](MCP_CONFIGURATION.md) for detailed setup instructions.
+4. **Start using it** - Ask your LLM:
+   - "List all OpenAI Agents SDK documentation topics"
+   - "Get documentation for handoffs"
+   - "How do I use streaming in OpenAI Agents?"
+
+See [INSTALLATION.md](INSTALLATION.md) and [MCP_CONFIGURATION.md](MCP_CONFIGURATION.md) for detailed setup instructions.
 
 ## Features
 
@@ -73,25 +93,27 @@ Uses OpenAI's GPT-4o-mini to intelligently match user queries to documentation:
 
 1. **Clone the repository**:
 ```bash
-cd /Users/gavin/Projects/openai-agent-sdk-mcp
+git clone https://github.com/gavinz0228/openai-agents-sdk-mcp.git
+cd openai-agents-sdk-mcp
 ```
 
-2. **Set up Python virtual environment**:
+2. **Install the package**:
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On macOS/Linux
+pip install -e .
 ```
 
-3. **Install dependencies**:
-```bash
-pip install -r requirements.txt
-```
-
-4. **Configure API key**:
-Create a `.env` file in the project root:
+3. **Configure API key**:
+Create a `.env` file in your working directory:
 ```bash
 OPENAI_API_KEY=sk-your-api-key-here
 ```
+
+Or set as environment variable:
+```bash
+export OPENAI_API_KEY="sk-your-api-key-here"
+```
+
+See [INSTALLATION.md](INSTALLATION.md) for more installation options.
 
 ## Usage
 
@@ -99,15 +121,18 @@ OPENAI_API_KEY=sk-your-api-key-here
 
 The MCP server allows LLMs to access the documentation through standardized tool calls.
 
-#### 1. Start the MCP Server
+#### Start the Server
 
 ```bash
-python server.py
+openai-agents-sdk-mcp
 ```
 
-The server communicates via stdio and is designed to be used by MCP clients (like Claude Desktop, IDEs, or custom applications).
+Or if running from source:
+```bash
+python -m openai_agents_sdk_mcp.server
+```
 
-#### 2. Configure MCP Client
+#### Configure MCP Client
 
 Add to your MCP client configuration (e.g., Claude Desktop's config):
 
@@ -115,30 +140,25 @@ Add to your MCP client configuration (e.g., Claude Desktop's config):
 {
   "mcpServers": {
     "openai-agents-sdk-docs": {
-      "command": "python",
-      "args": ["/path/to/openai-agent-sdk-mcp/server.py"],
-      "env": {
-        "OPENAI_API_KEY": "sk-your-api-key-here"
-      }
+      "command": "openai-agents-sdk-mcp"
     }
   }
 }
 ```
 
-Or use the absolute path to your virtual environment's Python:
+Or use the absolute path if installed in a virtual environment:
 
 ```json
 {
   "mcpServers": {
     "openai-agents-sdk-docs": {
-      "command": "/path/to/openai-agent-sdk-mcp/.venv/bin/python",
-      "args": ["/path/to/openai-agent-sdk-mcp/server.py"]
+      "command": "/path/to/.venv/bin/openai-agents-sdk-mcp"
     }
   }
 }
 ```
 
-#### 3. Available MCP Tools
+#### Available MCP Tools
 
 **`list_documentation_topics`**
 - Lists all available documentation topics
@@ -171,17 +191,51 @@ Example:
 }
 ```
 
-#### 4. Test the MCP Server
+#### Test the Server
 
 ```bash
 python test_mcp.py
 ```
 
-This will run automated tests to verify all MCP tools are working correctly.
+### Command Line Interface
 
-### Standalone CLI Tool
+Use the CLI tool for quick documentation queries:
 
-You can also use the tool directly from the command line.
+```bash
+# List all documentation topics
+openai-agents-docs
+
+# Search for specific documentation
+openai-agents-docs "handoffs"
+openai-agents-docs "streaming"
+openai-agents-docs "how to use guardrails"
+```
+
+### As a Python Library
+
+```python
+from openai_agents_sdk_mcp import (
+    load_or_refresh_index,
+    get_documentation_for_feature,
+    fetch_documentation_content
+)
+
+# Load documentation index
+doc_map = load_or_refresh_index()
+
+# Find documentation for a feature
+topic, url = get_documentation_for_feature("handoffs")
+print(f"Topic: {topic}")
+print(f"URL: {url}")
+
+# Fetch full documentation content
+content = fetch_documentation_content(url)
+print(content)
+```
+
+### Standalone CLI Tool (Legacy)
+
+If running from source without installation:
 
 #### Generate/Refresh Documentation Index
 

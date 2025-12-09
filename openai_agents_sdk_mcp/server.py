@@ -12,7 +12,7 @@ from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 import mcp.server.stdio
 
 # Import our documentation functions
-from openai_agents_sdk_mcp import (
+from .documentation import (
     load_or_refresh_index,
     get_documentation_for_feature,
     fetch_documentation_content,
@@ -148,6 +148,11 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent | ImageConte
         return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
 
+def start_server():
+    """Start the MCP server (entry point for package)."""
+    asyncio.run(main())
+
+
 async def main():
     """Run the MCP server."""
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
@@ -159,4 +164,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    start_server()

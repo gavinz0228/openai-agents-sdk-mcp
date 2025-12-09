@@ -23,7 +23,7 @@ async def test_mcp_server():
     # Server parameters
     server_params = StdioServerParameters(
         command=str(venv_python),
-        args=[str(Path(__file__).parent / "server.py")],
+        args=["-m", "openai_agents_sdk_mcp.server"],
         env=None
     )
     

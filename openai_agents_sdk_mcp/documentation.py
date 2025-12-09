@@ -334,7 +334,8 @@ def main():
     return 0
 
 
-if __name__ == "__main__":
+def cli():
+    """CLI entry point for the documentation tool."""
     import sys
     
     # If a feature name is provided as command-line argument, search for it
@@ -370,4 +371,8 @@ if __name__ == "__main__":
                 print(f"  ... and {len(doc_map) - 10} more")
     else:
         # Run the normal index parsing
-        exit(main())
+        sys.exit(main())
+
+
+if __name__ == "__main__":
+    cli()
