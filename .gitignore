@@ -43,3 +43,4 @@ Thumbs.db
 
 # Project specific
 docs_index.json
+.pypirc

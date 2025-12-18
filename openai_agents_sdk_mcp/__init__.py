@@ -8,16 +8,12 @@ __author__ = "Gavin Zhang"
 
 from .server import start_server
 from .documentation import (
-    fetch_documentation_index,
     get_documentation_for_feature,
-    fetch_documentation_content,
     load_or_refresh_index,
 )
 
 __all__ = [
     "start_server",
-    "fetch_documentation_index",
     "get_documentation_for_feature",
-    "fetch_documentation_content",
     "load_or_refresh_index",
 ]

@@ -216,21 +216,18 @@ openai-agents-docs "how to use guardrails"
 ```python
 from openai_agents_sdk_mcp import (
     load_or_refresh_index,
-    get_documentation_for_feature,
-    fetch_documentation_content
+    get_documentation_for_feature
 )
 
 # Load documentation index
 doc_map = load_or_refresh_index()
+print(f"Found {len(doc_map)} topics")
 
 # Find documentation for a feature
 topic, url = get_documentation_for_feature("handoffs")
-print(f"Topic: {topic}")
-print(f"URL: {url}")
-
-# Fetch full documentation content
-content = fetch_documentation_content(url)
-print(content)
+if topic:
+    print(f"Topic: {topic}")
+    print(f"URL: {url}")
 ```
 
 ### Standalone CLI Tool (Legacy)
